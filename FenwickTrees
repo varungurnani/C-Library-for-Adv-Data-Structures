@@ -1,0 +1,65 @@
+/////////////////////////////////////////   Fenwick Trees    //////////////////////////////
+
+template <typename T>
+class FenwickTree {
+private:
+    vector<T> tree;
+    int size;
+
+public:
+    FenwickTree(int n) {
+        size = n;
+        tree.assign(n + 1, 0);
+    }
+
+    // Add 'delta' to the element at index 'index'.
+    void update(int index, T delta) {
+        index++;  // Convert to 1-based indexing.
+        while (index <= size) {
+            tree[index] += delta;
+            index += index & -index;  // Move to the parent node.
+        }
+    }
+
+    // Compute the prefix sum up to index 'index'.
+    T query(int index) {
+        index++;  // Convert to 1-based indexing.
+        T sum = 0;
+        while (index > 0) {
+            sum += tree[index];
+            index -= index & -index;  // Move to the previous node.
+        }
+        return sum;
+    }
+
+    // Compute the range sum between indices 'left' and 'right'.
+    T rangeQuery(int left, int right) {
+        return query(right) - query(left - 1);
+    }
+};
+
+/////////////////////////////////////////   main function     //////////////////////////////
+
+int main() {
+    vector<int> values = {1, 3, 5, 2, 6, 8, 4};
+    FenwickTree<int> fenwick(values.size());
+
+    // Build the Fenwick Tree with initial values.
+    for (int i = 0; i < values.size(); i++) {
+        fenwick.update(i, values[i]);
+    }
+
+    // Perform range queries.
+    int left = 1, right = 5;
+    int sum = fenwick.rangeQuery(left, right);
+    cout << "Sum between indices " << left << " and " << right << ": " << sum << endl;
+
+    // Update a value and query again.
+    int indexToUpdate = 2;
+    int delta = 4;
+    fenwick.update(indexToUpdate, delta);
+    sum = fenwick.rangeQuery(left, right);
+    cout << "Updated sum between indices " << left << " and " << right << ": " << sum << endl;
+
+    return 0;
+}
